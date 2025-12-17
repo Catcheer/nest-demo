@@ -1,28 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { User } from './interface/user.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './user.entity';
 
 @Injectable()
 export class UserService {
-  users: User[] = [
-    {
-      id: 1,
-      name: 'Alice',
-      createTime: new Date('2023-01-01'),
-      rightTypes: ['admin', 'user'],
-    },
-    {
-      id: 2,
-      name: 'Bob',
-      createTime: new Date('2023-02-01'),
-      rightTypes: ['user'],
-    },
-  ];
-  getById(id: number): User | undefined {
-    // return `This action returns a #${id} user`;
+  constructor(
+    @InjectRepository(User) private readonly userRepository: Repository<User>,
+  ) {}
+
+  async getAll(): Promise<User[]> {
+    return this.userRepository.find();
+  }
+
+  async getById(id: number) {
     console.log('id', id);
-    const user: User | undefined = this.users.find(
-      (user) => user.id === Number(id),
-    );
+    const user = await this.userRepository.findOneBy({ id });
     return user;
+  }
+
+  async create(user: Partial<User>): Promise<User> {
+    const newUser = this.userRepository.create(user);
+    return this.userRepository.save(newUser);
+  }
+
+  async update(id: number, user: Partial<User>): Promise<User | null> {
+    await this.userRepository.update(id, user);
+    return this.userRepository.findOneBy({ id });
+  }
+
+  delete(id: number) {
+    return this.userRepository.delete(id);
   }
 }
