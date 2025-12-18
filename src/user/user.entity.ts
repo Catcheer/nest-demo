@@ -1,5 +1,6 @@
 import { Log } from 'src/logs/logs.entity';
 import { Role } from 'src/roles/roles.entity';
+import { Profile } from 'src/user/profile.entity';
 import {
   Entity,
   Column,
@@ -7,6 +8,7 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
+  OneToOne,
 } from 'typeorm';
 
 @Entity()
@@ -29,4 +31,7 @@ export class User {
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable()
   roles: Role[];
+
+  @OneToOne(() => Profile, (profile) => profile.user)
+  profile: Profile;
 }

@@ -1,14 +1,10 @@
-import { Controller, Get, Param, Post, Body } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './interface/user.interface';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  @Get('/:id')
-  getById(@Param('id') id: number) {
-    return this.userService.getById(id);
-  }
 
   @Get()
   getAll() {
@@ -28,5 +24,15 @@ export class UserController {
   @Post('/delete/:id')
   delete(@Param('id') id: number): Promise<any> {
     return this.userService.delete(id);
+  }
+
+  @Get('/profile')
+  getProfileByUserId(@Query('userId') userId: number) {
+    return this.userService.findProfileByUserId(userId);
+  }
+
+  @Get('/:id')
+  getById(@Param('id') id: number) {
+    return this.userService.getById(id);
   }
 }
