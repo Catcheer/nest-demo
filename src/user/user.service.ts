@@ -2,14 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { Profile } from './profile.entity';
+// import { Profile } from './profile.entity';
+import { Log } from '../logs/logs.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User) private readonly userRepository: Repository<User>,
-    @InjectRepository(Profile)
-    private readonly profileRepository: Repository<Profile>,
+    // @InjectRepository(Profile)
+    // private readonly profileRepository: Repository<Profile>,
+    @InjectRepository(Log)
+    private readonly logRepository: Repository<Log>,
   ) {}
 
   async getAll(): Promise<User[]> {
@@ -36,10 +39,35 @@ export class UserService {
     return this.userRepository.delete(id);
   }
 
-  findProfileByUserId(userId: number): Promise<Profile | null> {
-    return this.profileRepository.findOne({
-      where: { user: { id: userId } },
-      relations: ['user'],
+  async findProfileByUserId(userId: number) {
+    const user: User | null = await this.getById(userId);
+    return this.userRepository.findOne({
+      where: { id: user?.id },
+      relations: {
+        profile: true,
+      },
     });
+  }
+
+  async findLogsByUserId(userId: number) {
+    const user: User | null = await this.getById(userId);
+    return this.userRepository.findOne({
+      where: { id: user?.id },
+      relations: {
+        logs: true,
+      },
+    });
+  }
+
+  async getLogsByGroup(id: number): Promise<any> {
+    const logs = await this.logRepository
+      .createQueryBuilder('logs')
+      .select('logs.result', 'result')
+      .addSelect('COUNT(logs.result)', 'count')
+      .leftJoinAndSelect('logs.user', 'user')
+      .where('user.id=:id', { id })
+      .groupBy('logs.result')
+      .getRawMany();
+    return logs;
   }
 }

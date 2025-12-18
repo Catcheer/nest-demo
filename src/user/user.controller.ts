@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Post, Body, Query } from '@nestjs/common';
 import { UserService } from './user.service';
-import { User } from './interface/user.interface';
+import { User } from './user.entity';
 
 @Controller('user')
 export class UserController {
@@ -29,6 +29,20 @@ export class UserController {
   @Get('/profile')
   getProfileByUserId(@Query('userId') userId: number) {
     return this.userService.findProfileByUserId(userId);
+  }
+  @Get('/logs')
+  findLogsByUserId(@Query('userId') userId: number) {
+    return this.userService.findLogsByUserId(userId);
+  }
+
+  @Get('/group-logs')
+  async getLogsByGroup(@Query('id') id: number) {
+    let res = await this.userService.getLogsByGroup(id);
+    // return res.map((log) => ({
+    //   result: log.result,
+    //   count: log.count,
+    // }));
+    return res;
   }
 
   @Get('/:id')

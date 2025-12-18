@@ -16,18 +16,16 @@ import { Role } from './roles/roles.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: async (config: ConfigService) => {
+      useFactory: (config: ConfigService) => {
         const type = config.get<'mysql'>('DB_TYPE');
         const host = config.get<string>('DB_HOST');
         const port = config.get<number>('DB_PORT');
         const username = config.get<string>('DB_USERNAME');
-        let password = config.get<any>('DB_PASSWORD');
-        if (typeof password === 'function') {
-          password = await password();
-        }
+        const password = config.get<string>('DB_PASSWORD') || '';
+
         const database = config.get<string>('DB_NAME');
         const synchronize = config.get<boolean>('DB_SYNCHRONIZE');
-        const logging = config.get<boolean>('DB_LOGGING');
+        // const logging = config.get<boolean>('DB_LOGGING');
         return {
           type,
           host,
@@ -37,8 +35,9 @@ import { Role } from './roles/roles.entity';
           database,
           entities: [User, Profile, Log, Role], // 或 dist/**/*.entity.js
           synchronize,
-          logging,
+          // logging,
           timezone: '+08:00',
+          logging: ['warn', 'error'],
         };
       },
     }),

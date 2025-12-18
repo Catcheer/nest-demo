@@ -29,7 +29,7 @@ export class User {
   logs: Log[];
 
   @ManyToMany(() => Role, (role) => role.users)
-  @JoinTable()
+  @JoinTable({ name: 'users_roles' })
   roles: Role[];
 
   @OneToOne(() => Profile, (profile) => profile.user)
